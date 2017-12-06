@@ -7,7 +7,7 @@ public class AlarmInfo {
 
     private String id;
     private String extraInfo;
-    private final AlarmType type;
+    public final AlarmType type;
 
     public AlarmInfo(String id, AlarmType type) {
         this.id = id;
