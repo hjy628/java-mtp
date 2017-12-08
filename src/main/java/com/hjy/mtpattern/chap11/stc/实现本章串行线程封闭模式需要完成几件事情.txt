@@ -1,0 +1,5 @@
+利用此处的可复用代码实现Serial Thread Confinement模式，应用程序只需完成以下几件事情:
+1[必需]定义Serializer提交给WorkerThread的任务对应的类型
+2[必需]定义AbstractSerializer的子类，并实现其父类定义的makeTask抽象方法，另外该
+子类需要定义一个名字含义比service更为具体的服务方法，该方法可直接调用其父类的service方法
+3[必需]定义TaskProcessor接口的实现类
