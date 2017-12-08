@@ -1,0 +1,8 @@
+S = Ncpu * Ucpu *(1+WT/ST);
+
+S为线程池的合理大小,
+Ncpu为CPU个数
+Ucpu为目标CPU使用率
+WT为任务执行线程进行等待的时间
+ST为任务执行线程使用CPU进行计算的时间
+WT和ST这个时间值可以借助工具(如jvisualvm、jprofiler)计算出相应值
