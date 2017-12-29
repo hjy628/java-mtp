@@ -21,14 +21,15 @@ public abstract class WorkerThreadSlave<T,V> extends AbstractTerminatableThread 
     }
 
     public Future<V> submit(final T task)throws InterruptedException{
-         Future<V> ft = new FutureTask<V>(new Callable<V>() {
+         FutureTask<V> ft = new FutureTask<V>(new Callable<V>() {
             @Override
             public V call() throws Exception {
                 V result;
                 try {
-                    result = null;
+                    result = doProcess(task);
                 }catch (Exception e){
-
+                        SubTaskFailureException stfe = newSubTaskFailureException(task,e);
+                    throw stfe;
                 }
                 return result;
             }
@@ -38,7 +39,43 @@ public abstract class WorkerThreadSlave<T,V> extends AbstractTerminatableThread 
         return ft;
     }
 
+    private SubTaskFailureException newSubTaskFailureException(final T subTask, Exception cause) {
+        RetryInfo<T,V> retryInfo = new RetryInfo<T, V>(subTask, new Callable<V>() {
+            @Override
+            public V call() throws Exception {
+                V result;
+                result = doProcess(subTask);
+                return result;
+            }
+        });
+        return new SubTaskFailureException(retryInfo,cause);
+    }
 
+    /**
+     *   @Description      留给子类实现，用于实现子任务的处理逻辑
+     *   @Param   task 子任务
+     *   @return 子任务的处理结果
+     *   @Date: 下午5:11 17-12-29
+     */
+    protected abstract V doProcess(T task) throws Exception;
 
+    @Override
+    protected void doRun() throws Exception {
+        try {
+            Runnable task = taskQueue.take();
+            task.run();
+        }finally {
+            terminationToken.reservations.decrementAndGet();
+        }
+    }
 
+    @Override
+    public void init() {
+        start();
+    }
+
+    @Override
+    public void shutdown() {
+        terminate(true);
+    }
 }
