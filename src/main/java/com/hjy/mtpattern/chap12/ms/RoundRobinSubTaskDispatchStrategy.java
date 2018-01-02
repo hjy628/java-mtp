@@ -29,7 +29,7 @@ public class RoundRobinSubTaskDispatchStrategy<T,V> implements SubTaskDispatchSt
 
         while (null!=(subTask=taskDivideStrategy.nextChunk())){
             i = (i+1)%slaveCount;
-            subTaskResultPromise = new FutureTask<V>(null);
+            subTaskResultPromise = ((WorkerThreadSlave<T,V>) arrSlaves[i]).submit(subTask);
             subResults.add(subTaskResultPromise);
         }
         return subResults.iterator();
